@@ -1,103 +1,86 @@
-🟢 Node.js Application Deployment using AWS EC2 & Nginx
+🧩 1. Launch an Amazon Linux EC2 Instance
+Log in to AWS Console → EC2 → Launch Instance
 
-🚀 Project Overview:
-This project demonstrates how to deploy a Node.js web application on an AWS EC2 instance. It covers end-to-end steps from local development to live deployment with continuous availability.
+Choose Amazon Linux 2 AMI (free tier eligible).
 
-🧩 Key Steps Involved:
+Select instance type: t2.micro (for testing).
 
-Developed and tested the Node.js app locally.
+Create or use an existing key pair.
 
-Launched an EC2 instance (Ubuntu Server).
+Allow inbound traffic:
 
-Installed Node.js, npm, and Git on the server.
+HTTP (80)
 
-Cloned the project repository using Git.
+HTTPS (443)
 
-Installed all dependencies using npm install.
+Custom TCP 3000 (optional, for testing)
 
-Used PM2 to keep the app running continuously.
+SSH (22)
 
-Configured Nginx as a reverse proxy for better performance and security.
+Launch the instance.
 
-Accessed the app using a custom domain and public IP.
+🧠 2. Connect to Your Server
+In your terminal:
 
-🛠️ Tech Stack:
+ssh -i "your-key.pem" ec2-user@<public-ip>
+⚙️ 3. Update the System
+sudo yum update -y
+🟢 4. Install Node.js and npm
+Amazon Linux 2 comes with Node.js in repositories:
 
-Node.js
-
-Express.js
-
-AWS EC2
-
-PM2
-
-Nginx
-3. Launch a Server (e.g., AWS EC2)
-
-Choose Ubuntu instance.
-
-Connect via SSH:
-
-ssh -i key.pem ubuntu@<your-public-ip>
-
-
-Update packages:
-
-sudo apt update && sudo apt upgrade -y
-
-4. Install Node.js, npm, and Git
-sudo apt install nodejs npm git -y
-
-
-Check versions:
+sudo yum install -y nodejs npm
+✅ Check versions:
 
 node -v
 npm -v
+If you need the latest version:
 
-5. Clone Your GitHub Repository
-git clone https://github.com/<username>/<repo-name>.git
-cd <repo-name>
+curl -fsSL https://rpm.nodesource.com/setup_20.x | sudo bash -
+sudo yum install -y nodejs
+📦 5. Clone Your Project from GitHub
+If your code is on GitHub:
 
-6. Install Dependencies
+sudo yum install -y git
+git clone https://github.com/<your-username>/<your-repo>.git
+cd <your-repo>
+📁 6. Install Project Dependencies
+Inside your project directory:
+
 npm install
+▶️ 7. Run Your App
+For testing:
 
-7. Run the App
 node app.js
+If your app runs on port 3000, open:
 
+http://<ec2-public-ip>:3000
+⚡ 8. Use PM2 for Continuous Running
+Install PM2 (process manager):
 
-or
-
-npm start
-
-
-Check in the browser:
-http://<your-server-public-ip>:<port>
-
-8. Keep App Running (Using PM2)
 sudo npm install -g pm2
+Start your app:
+
 pm2 start app.js
+pm2 status
 pm2 startup
 pm2 save
+This ensures your Node app restarts automatically after a reboot.
 
+🌐 9. Set Up Nginx as a Reverse Proxy
+Install Nginx:
 
-This ensures the app restarts automatically if the server reboots.
+sudo amazon-linux-extras install nginx1 -y
+Edit config:
 
-9. (Optional) Set Up Nginx Reverse Proxy
-
-To serve your app on port 80 (default HTTP port):
-
-sudo apt install nginx -y
-sudo nano /etc/nginx/sites-available/default
-
-
-Replace content with:
+sudo nano /etc/nginx/nginx.conf
+Replace the server block with:
 
 server {
     listen 80;
     server_name _;
 
     location / {
-        proxy_pass http://localhost:3000;
+        proxy_pass http://127.0.0.1:3000;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';
@@ -105,23 +88,28 @@ server {
         proxy_cache_bypass $http_upgrade;
     }
 }
+Restart Nginx:
 
-
-Then restart Nginx:
-
+sudo systemctl enable nginx
 sudo systemctl restart nginx
+Now your app is live on:
 
-✅ Now your Node.js app is live!
+http://<ec2-public-ip>/
+🔒 10. (Optional) Enable SSL using Certbot
+If you have a domain:
 
-You can access it using your server IP or domain name.
-✅ Deployment Complete!
+sudo amazon-linux-extras install epel -y
+sudo yum install certbot python3-certbot-nginx -y
+sudo certbot --nginx
+✅ Your Node.js App is Now Live!
 
-Your Node.js app is now live and accessible via your server IP or domain name 🎉
+--------------------------------
+Author:-
+   Avinash D Zalke
+   Linkedin: https://www.linkedin.com/in/
+   Email:avinashzalake2@gmail.com
 
-💡 Author
 
-Avinash D Zalke
 
-GitHub: @avinash dhanraj zalke
-Linkedin: https://www.linkedin.com/
-email-ID: avinashzalake2@gmail.com
+No file chosenNo file chosen
+ChatGPT can make mistakes. Check important info. See .
